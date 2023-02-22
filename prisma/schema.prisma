@@ -10,16 +10,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Client {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  email    String    @unique
+  asset    String?
+  invoices Invoice[]
+}
+
 model Invoice {
-  id          String         @id @default(cuid())
-  clientName  String         @unique
-  clientEmail String         @unique
-  createdAt   DateTime       @default(now())
-  dueDate     DateTime
-  title       String
-  note        String?
-  total      Int
-  status      INVOICE_STATUS @default(Draft)
+  id String @id @default(cuid())
+  createdAt DateTime       @default(now())
+  dueDate   DateTime
+  title     String
+  note      String?
+  total     Int
+  status    INVOICE_STATUS @default(Draft)
+  Client    Client        @relation(fields: [clientId], references: [id])
+  clientId  String
 }
 
 enum INVOICE_STATUS {
