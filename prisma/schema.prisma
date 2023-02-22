@@ -19,14 +19,14 @@ model Client {
 }
 
 model Invoice {
-  id String @id @default(cuid())
+  id        String         @id @default(cuid())
   createdAt DateTime       @default(now())
   dueDate   DateTime
   title     String
   note      String?
   total     Int
   status    INVOICE_STATUS @default(Draft)
-  Client    Client        @relation(fields: [clientId], references: [id])
+  Client    Client         @relation(fields: [clientId], references: [id])
   clientId  String
 }
 
