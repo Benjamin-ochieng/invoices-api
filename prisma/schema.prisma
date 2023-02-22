@@ -13,6 +13,7 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   userName  String   @unique
   password  String
   client    Client[]
@@ -31,6 +32,7 @@ model Client {
 model Invoice {
   id        String         @id @default(cuid())
   createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
   dueDate   DateTime
   title     String
   note      String?
