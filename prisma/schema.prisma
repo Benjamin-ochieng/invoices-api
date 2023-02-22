@@ -24,8 +24,8 @@ model Client {
   email    String    @unique
   asset    String?
   invoices Invoice[]
-  User     User     @relation(fields: [userId], references: [id])
-  userId   String
+  User     User?     @relation(fields: [userId], references: [id])
+  userId   String?
 }
 
 model Invoice {
