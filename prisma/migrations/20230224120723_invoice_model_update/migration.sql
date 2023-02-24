@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Invoice" ALTER COLUMN "invoiceDate" SET DEFAULT CURRENT_TIMESTAMP;
