@@ -1,6 +1,5 @@
 import { createClient, getManyClients, getOneClient, updateOneClient,deleteOneClient } from './handlers/clients';
 import { getMe, updateMe } from './handlers/users';
-import { updatePassword } from './modules/auth';
 import { Router } from "express";
 
 import {
@@ -14,7 +13,7 @@ import {
 const router = Router()
 
 router.get('/user', getMe)
-router.put('/user', updatePassword, updateMe)
+router.put('/user', updateMe)
 
 router.post("/clients", createClient);
 router.get('/clients',getManyClients)
