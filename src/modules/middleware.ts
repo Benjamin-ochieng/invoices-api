@@ -18,6 +18,12 @@ export const validateInputs = (method) => {
         body("password", "Password is required").isString().exists(),
       ];
     }
+    case "updateMe": {
+      return [
+        body("userName", "Username is required").optional().isString(),
+        body("password", "cannot change password from here!").not().exists(),
+      ];
+    }
     case "createClient": {
       return [
         body("clientName", "Client name is required").exists(),
@@ -48,7 +54,7 @@ export const validateInputs = (method) => {
 export const handleInputErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (errors.isEmpty()) {
-     next();
+     return next();
   }
   const extractedErrors = [];
   errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));

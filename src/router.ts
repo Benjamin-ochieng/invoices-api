@@ -20,7 +20,11 @@ import {
 const router = Router();
 
 router.get("/user", getMe);
-router.put("/user", updateMe);
+router.put(
+  "/user",
+  [validateInputs("updateMe"), handleInputErrors],
+  updateMe
+);
 
 router.post(
   "/clients",
