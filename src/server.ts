@@ -3,6 +3,7 @@ import router from './router'
 import cors from 'cors'
 import morgan from 'morgan'
 import { signup, signin, protect } from './modules/auth'
+import { handleInputErrors, validateInputs } from './modules/middleware'
 
 const app = express()
 
@@ -15,8 +16,8 @@ app.get("/", (req, res) => {
   res.json({message: "Hello World!"});
 });
 
-app.use('/signup', signup)
-app.use('/signin',signin)
+app.use("/signup", [validateInputs("signup"), handleInputErrors], signup);
+app.use("/signin", [validateInputs("signin"), handleInputErrors], signin);
 app.use('/api', protect, router)
 
 export default app
