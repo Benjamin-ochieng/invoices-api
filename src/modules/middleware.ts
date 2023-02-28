@@ -18,6 +18,14 @@ export const validateInputs = (method) => {
         body("password", "Password is required").isString().exists(),
       ];
     }
+    case "resetPassword": {
+      return [
+        body("password", "Password must be at least 8 characters")
+          .isLength({ min: 8 })
+          .isString()
+          .exists(),
+      ];
+    }
     case "updateMe": {
       return [
         body("userName", "Username is required").optional().isString(),

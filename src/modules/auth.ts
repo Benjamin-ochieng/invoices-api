@@ -80,3 +80,24 @@ export const protect = async (req, res, next) => {
     res.status(401).end();
   }
 };
+
+export const resetPassword = async (req, res, next) => { 
+  try {
+    const hash = await hashPassword(req.body.password);
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: req.user.id,
+      },
+      data: {
+        password: hash,
+      },
+      select: {
+        userName: true,
+        updatedAt: true,
+      },
+    });
+    res.json({data: updatedUser});
+  } catch (err) {
+    next(err);
+  }
+}

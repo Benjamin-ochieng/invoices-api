@@ -7,6 +7,7 @@ import {
   deleteOneClient,
 } from "./handlers/clients";
 import { getMe, updateMe } from "./handlers/users";
+import { resetPassword } from "./modules/auth";
 import { Router } from "express";
 
 import {
@@ -24,6 +25,12 @@ router.put(
   "/user",
   [validateInputs("updateMe"), handleInputErrors],
   updateMe
+);
+
+router.put(
+  "/password",
+  [validateInputs("resetPassword"), handleInputErrors],
+  resetPassword
 );
 
 router.post(
