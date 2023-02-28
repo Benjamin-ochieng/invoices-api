@@ -1,19 +1,5 @@
 import { body, oneOf, validationResult } from "express-validator";
-import isEmpty from "lodash/isEmpty";
 import { pipe } from "./utils";
-
-// const oneOfMessage = "Please provide either a client name or email";
-const oneOfMessage = ({ req }) => {
-  if (isEmpty(req.body)) {
-    return "Please provide either a client name or email";
-  } 
-
-  // else {
-  //   const { clientName, clientEmail } = req.body;
-  //   console.log("clientName", "clientEmail");
-    
-  // }
-};
 
 export const validateInputs = (method) => {
   switch (method) {
@@ -62,16 +48,11 @@ export const validateInputs = (method) => {
 export const handleInputErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (errors.isEmpty()) {
-    console.log("No errors");
-
-    return next();
+     next();
   }
   const extractedErrors = [];
   errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
   return res.status(422).json({ errors: extractedErrors });
 };
 
-export const validateAndHandleInputErrors = pipe(
-  validateInputs,
-  handleInputErrors
-);
+

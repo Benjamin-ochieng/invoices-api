@@ -1,4 +1,4 @@
-import {  validateAndHandleInputErrors } from "./modules/middleware";
+import { validateInputs, handleInputErrors } from "./modules/middleware";
 import {
   createClient,
   getManyClients,
@@ -24,14 +24,14 @@ router.put("/user", updateMe);
 
 router.post(
   "/clients",
-  validateAndHandleInputErrors("createClient"),
+  [validateInputs("createClient"), handleInputErrors],
   createClient
 );
 router.get("/clients", getManyClients);
 router.get("/clients/:id", getOneClient);
 router.put(
   "/clients/:id",
-  validateAndHandleInputErrors("updateOneClient"),
+  [validateInputs("updateOneClient"), handleInputErrors],
   updateOneClient
 );
 router.delete("/clients/:id", deleteOneClient);
