@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import prisma from "../db";
-
+import * as errors from "./errors";
+import { tryToCatch } from "./utils";
 
 export const comparePassword = (password, hash) =>
   bcrypt.compare(password, hash);
@@ -27,61 +28,66 @@ export const verifyToken = (token) =>
     });
   });
 
-
 export const signup = async (req, res, next) => {
   try {
     const hash = await hashPassword(req.body.password);
-    const newUser = await prisma.user.create({
-      data: {
-        userName: req.body.userName,
-        password: hash,
-      },
-    });
+    const newUser = await prisma.user
+      .create({
+        data: {
+          userName: req.body.userName,
+          password: hash,
+        },
+      })
+      .catch((err) => {
+        if (err.code === "P2002") {
+          throw new errors.ConflictError("userName");
+        } else {
+          next(err);
+        }
+      });
     const token = createJWT(newUser);
     res.json({ token });
   } catch (err) {
-    err.type = "input";
     next(err);
   }
 };
 
-export const signin = async (req, res) => {
-  const user = await prisma.user.findUnique({
-    where: {
-      userName: req.body.userName,
-    },
+export const signin = async (req, res, next) => {
+  const [err, user] = await tryToCatch(prisma.user.findUnique, {
+    where: { userName: req.body.userName },
   });
+  if (!user) return next(new errors.UnauthorizedError());
 
-  let invalid = { message: "Incorrect email password combination" };
+  const [err2, isValidUser] = await tryToCatch(
+    comparePassword,
+    req.body.password,
+    user.password
+  );
+  if (!isValidUser) return next(new errors.UnauthorizedError());
 
-  const isValidUser = await comparePassword(req.body.password, user.password);
-  if (!isValidUser) {
-    res.status(401).send(invalid);
-  } else {
-    const token = createJWT(user);
-    res.json({ token });
-  }
+  const token = createJWT(user);
+  res.json({ token });
 };
 
 export const protect = async (req, res, next) => {
   const bearer = req.headers.authorization;
   if (!bearer) {
-    return res.status(401).end();
+    return res.status(401).json({ error: "Unauthorized" }).end();
   }
   const [, token] = bearer.split(" ");
   if (!bearer) {
-    return res.status(401).end();
+    return res.status(401).json({ error: "Unauthorized" }).end();
   }
   try {
     const user = await verifyToken(token);
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).end();
+    return res.status(401).json({ error: "Unauthorized" }).end();
   }
 };
 
-export const resetPassword = async (req, res, next) => { 
+export const resetPassword = async (req, res, next) => {
   try {
     const hash = await hashPassword(req.body.password);
     const updatedUser = await prisma.user.update({
@@ -96,8 +102,8 @@ export const resetPassword = async (req, res, next) => {
         updatedAt: true,
       },
     });
-    res.json({data: updatedUser});
+    res.json({ data: updatedUser });
   } catch (err) {
     next(err);
   }
-}
+};

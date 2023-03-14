@@ -1,7 +1,6 @@
 import prisma from "../db";
 export const getMe = (req, res) => res.status(200).json({ data: req.user });
-export const updateMe = async (req, res) => {
-  
+export const updateMe = async (req, res, next) => {
   try {
     const updatedUser = await prisma.user.update({
       where: {
@@ -12,6 +11,6 @@ export const updateMe = async (req, res) => {
 
     res.status(200).json({ data: updatedUser });
   } catch (err) {
-    console.log(err);
+    next(err);
   }
 };

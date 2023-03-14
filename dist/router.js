@@ -1,0 +1,24 @@
+"use strict";
+exports.__esModule = true;
+var middleware_1 = require("./modules/middleware");
+var clients_1 = require("./handlers/clients");
+var users_1 = require("./handlers/users");
+var auth_1 = require("./modules/auth");
+var express_1 = require("express");
+var invoices_1 = require("./handlers/invoices");
+var router = (0, express_1.Router)();
+router.get("/user", users_1.getMe);
+router.put("/user", [(0, middleware_1.validateInputs)("updateMe"), middleware_1.handleInputErrors], users_1.updateMe);
+router.put("/password", [(0, middleware_1.validateInputs)("resetPassword"), middleware_1.handleInputErrors], auth_1.resetPassword);
+router.post("/clients", [(0, middleware_1.validateInputs)("createClient"), middleware_1.handleInputErrors], clients_1.createClient);
+router.get("/clients", clients_1.getManyClients);
+router.get("/clients/:id", clients_1.getOneClient);
+router.put("/clients/:id", [(0, middleware_1.validateInputs)("updateOneClient"), middleware_1.handleInputErrors], clients_1.updateOneClient);
+router["delete"]("/clients/:id", clients_1.deleteOneClient);
+router.post("/invoices", invoices_1.createInvoice);
+router.get("/invoices", invoices_1.getManyInvoices);
+router.get("/invoices/:id", invoices_1.getOneInvoice);
+router.put("/invoices/:id", invoices_1.updateInvoice);
+router["delete"]("/invoices/:id", invoices_1.deleteInvoice);
+exports["default"] = router;
+//# sourceMappingURL=router.js.map
