@@ -1,4 +1,5 @@
 import merge from "lodash.merge";
+import { type } from "os";
 
 export enum HttpStatusCode {
   OK = 200,
@@ -10,7 +11,16 @@ export enum HttpStatusCode {
   UNPROCESSABLE_ENTITY = 422,
 }
 
+type ErrorOptions = {
+  name: string;
+  httpCode: HttpStatusCode;
+  description: string;
+  isOperational: boolean;
+};
 
+type ValidationErrorOptions = {
+  errors: any;
+} 
 
 export class BaseError extends Error {
   public readonly name: string;
@@ -61,7 +71,7 @@ export class UnauthorizedError extends BaseError {
 
 export class ValidationError extends BaseError {
   //TODO: add a type for the options in the constructor
-  constructor(options) {
+  constructor(options: ValidationErrorOptions) {
     merge(
       super(
         "Validation",
