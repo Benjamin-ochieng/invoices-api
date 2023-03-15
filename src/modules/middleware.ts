@@ -1,5 +1,6 @@
 import { body, oneOf, validationResult } from "express-validator";
 import { pipe } from "./utils";
+import { ValidationError } from "./errors";
 
 export const validateInputs = (method) => {
   switch (method) {
@@ -72,5 +73,7 @@ export const handleInputErrors = (req, res, next) => {
   }
   const extractedErrors = [];
   errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
-  return res.status(422).json({ errors: extractedErrors });
+  // return res.status(422).json({ errors: extractedErrors });
+  return next(new ValidationError(extractedErrors));
+  
 };
