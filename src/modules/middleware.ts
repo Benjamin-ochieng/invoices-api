@@ -71,9 +71,8 @@ export const handleInputErrors = (req, res, next) => {
   if (errors.isEmpty()) {
     return next();
   }
-  const extractedErrors = [];
-  errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
-  // return res.status(422).json({ errors: extractedErrors });
-  return next(new ValidationError(extractedErrors));
-  
+  const extractedError = { errors: {} }; // {details: {param: msg}}
+  errors.array().map((err) => (extractedError.errors[err.param] = err.msg));
+  console.log(extractedError);
+  return next(new ValidationError(extractedError));
 };
