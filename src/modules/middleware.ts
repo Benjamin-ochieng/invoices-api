@@ -10,6 +10,12 @@ export const validateInputs = (method) => {
         body("password", "Password must be at least 8 characters").isLength({
           min: 8,
         }),
+        body("password", "Password must be at least 8 characters").isLength({
+          min: 8,
+        }),
+        body("userName", "userName must be at least 2 characters").isLength({
+          min: 2,
+        }),
       ];
     }
     case "signin": {
@@ -62,11 +68,9 @@ export const validateInputs = (method) => {
 export const handleInputErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (errors.isEmpty()) {
-     return next();
+    return next();
   }
   const extractedErrors = [];
   errors.array().map((err) => extractedErrors.push({ [err.param]: err.msg }));
   return res.status(422).json({ errors: extractedErrors });
 };
-
-
