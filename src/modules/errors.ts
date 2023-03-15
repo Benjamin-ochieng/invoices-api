@@ -70,7 +70,6 @@ export class UnauthorizedError extends BaseError {
 
 
 export class ValidationError extends BaseError {
-  //TODO: add a type for the options in the constructor
   constructor(options: ValidationErrorOptions) {
     merge(
       super(
