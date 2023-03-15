@@ -1,4 +1,4 @@
-import errors from "common-errors";
+import merge from "lodash.merge";
 
 export enum HttpStatusCode {
   OK = 200,
@@ -7,7 +7,10 @@ export enum HttpStatusCode {
   INTERNAL_SERVER = 500,
   CONFLICT = 409,
   UNAUTHORIZED = 401,
+  UNPROCESSABLE_ENTITY = 422,
 }
+
+
 
 export class BaseError extends Error {
   public readonly name: string;
@@ -51,6 +54,22 @@ export class UnauthorizedError extends BaseError {
       HttpStatusCode.UNAUTHORIZED,
       "Incorrect email password combination",
       true
+    );
+  }
+}
+
+
+export class ValidationError extends BaseError {
+  //TODO: add a type for the options in the constructor
+  constructor(options) {
+    merge(
+      super(
+        "Validation",
+        HttpStatusCode.UNPROCESSABLE_ENTITY,
+        "The request failed validation.",
+        true
+      ),
+      options
     );
   }
 }
