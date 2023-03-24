@@ -25,7 +25,7 @@ app.get("/", (req, res) => {
 
 // app.use("/signup", [validateInputs("signup"), handleInputErrors], signup);
 // app.use("/signin", [validateInputs("signin"), handleInputErrors], signin);
-app.use("/login", [validateInputs("login"), handleInputErrors], login);
+app.use("/login", login);
 app.use("/api", protectRoute, router);
 app.use(operationalErrorHandler);
 

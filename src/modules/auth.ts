@@ -14,9 +14,8 @@ function setCookie(res, token) {
     sameSite: "lax",
     maxAge: config.JWT_COOKIE_EXPIRES_IN,
     path: "/",
-  });
-  res.json("Set-Cookie", cookie);
-  // res.setHeader("Set-Cookie", cookie);
+  });  
+  res.setHeader("Set-Cookie", cookie);
 }
 
  function verifyToken(token) {
@@ -33,25 +32,22 @@ function setCookie(res, token) {
 
 export async function protectRoute(req, res, next) {
   const token = req.cookies.token;
-  //TODO: Confirm if this is the right way to handle this
-  // if (!token) return next(new errors.UnauthorizedError());
+  if (!token) return next(new errors.UnauthorizedError());
   const [err, user] = await tryToCatch(verifyToken, token);
-  //TODO: Confirm if this is the right way to handle this
+  //TOD0: add refresh token 
   if (err) return next(new errors.UnauthorizedError());
+
   req.user = user;
   next();
 }
 
-export async function login  (req, res, next) {
-  console.log(req.headers.authorization);
-  res.end()
+export async function login  (req, res, next) {  
+  const magic = new Magic(process.env.MAGIC_SECRET_KEY);
+  const didToken = req.headers.authorization.substr(7);
+  await magic.token.validate(didToken);
+  const metadata = await magic.users.getMetadataByToken(didToken);
   
-  // const magic = new Magic(process.env.MAGIC_SECRET_KEY);
-  // const didToken = req.headers.authorization.substr(7);
-  // console.log(didToken);
-  // await magic.token.validate(didToken);
-  // const metadata = await magic.users.getMetadataByToken(didToken);
-  //TODO: add user to db if not already there
+  // // TODO: add user to db if not already there
   // const [err, user] = await tryToCatch(prisma.user.findUnique, {
   //   where: { userEmail: metadata.email },
   // });
@@ -62,14 +58,13 @@ export async function login  (req, res, next) {
   //       id: metadata.issuer,
   //     },
   //   });
-  // const token = jwt.sign(
-  //   { id: metadata.issuer, email: metadata.email },
-  //   process.env.JWT_SECRET,
-  //   { expiresIn: config.JWT_EXPIRES_IN }
-  // );
-  // setCookie(res, token);
-  // //TODO: Send response
-  // // res.status(200).json({ done: true });
+  const token = jwt.sign(
+    { id: metadata.issuer, email: metadata.email },
+    process.env.JWT_SECRET,
+    { expiresIn: config.JWT_EXPIRES_IN }
+  );
+  setCookie(res, token);
+  res.status(200).json({ done: true });
 };
 
 

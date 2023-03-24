@@ -4,10 +4,10 @@ import { ValidationError } from "./errors";
 
 export const validateInputs = (method) => {
   switch (method) {
-    case "login": {
-      return [
-        body("userEmail", "Email is required").exists().isEmail()];
-    }
+    // case "login": {
+    //   return [
+    //     body("userEmail", "Email is required").exists().isEmail()];
+    // }
     case "signup": {
       return [
         body("userName", "Username is required").exists(),
