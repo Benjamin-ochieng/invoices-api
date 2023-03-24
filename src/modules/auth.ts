@@ -44,7 +44,8 @@ export async function protectRoute(req, res, next) {
 
 export async function login  (req, res, next) {
   const magic = new Magic(process.env.MAGIC_SECRET_KEY);
-  const didToken = req.headers.authorization.split(" ")[1];
+  const didToken = req.headers.authorization.substr(7);
+  console.log(didToken);
   await magic.token.validate(didToken);
   const metadata = await magic.users.getMetadataByToken(didToken);
   //TODO: add user to db if not already there
