@@ -2,7 +2,8 @@ import express from "express";
 import router from "./router";
 import cors from "cors";
 import morgan from "morgan";
-import { signup, signin, protect } from "./modules/auth";
+// import { signup, signin, protect } from "./modules/auth";
+import {  login, protectRoute } from "./modules/auth";
 import { handleInputErrors, validateInputs } from "./modules/middleware";
 
 const app = express();
@@ -22,9 +23,10 @@ app.get("/", (req, res) => {
   res.json({ message: "Hello World!" });
 });
 
-app.use("/signup", [validateInputs("signup"), handleInputErrors], signup);
-app.use("/signin", [validateInputs("signin"), handleInputErrors], signin);
-app.use("/api", protect, router);
+// app.use("/signup", [validateInputs("signup"), handleInputErrors], signup);
+// app.use("/signin", [validateInputs("signin"), handleInputErrors], signin);
+app.use("/login", [validateInputs("login"), handleInputErrors], login);
+app.use("/api", protectRoute, router);
 app.use(operationalErrorHandler);
 
 export default app;

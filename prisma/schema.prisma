@@ -8,22 +8,23 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  createdAt DateTime  @default(now())
-  userEmail String?    @unique
-  userName  String    @unique
-  password  String
-  updatedAt DateTime  @updatedAt
-  clients   Client[]
-  invoices  Invoice[]
+  id          String    @id @default(cuid())
+  userEmail   String    @unique
+  issuer      String?   @unique
+  lastLoginAt DateTime?
+  userName    String?   @unique
+  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+  clients     Client[]
+  invoices    Invoice[]
 }
 
 model Client {
   id          String    @id @default(cuid())
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  clientName  String    @unique
-  clientEmail String
+  clientName  String?   @unique
+  clientEmail String?   @unique
   userId      String
   User        User      @relation(fields: [userId], references: [id])
   invoices    Invoice[]
