@@ -15,7 +15,8 @@ function setCookie(res, token) {
     maxAge: config.JWT_COOKIE_EXPIRES_IN,
     path: "/",
   });
-  res.setHeader("Set-Cookie", cookie);
+  res.json("Set-Cookie", cookie);
+  // res.setHeader("Set-Cookie", cookie);
 }
 
  function verifyToken(token) {
