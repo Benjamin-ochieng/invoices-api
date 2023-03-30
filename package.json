@@ -1,6 +1,7 @@
 {
   "scripts": {
     "dev": "ts-node src/index.ts",
+    "test": "NODE_ENV=test ts-node src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "nodemon src/index.ts"
   },

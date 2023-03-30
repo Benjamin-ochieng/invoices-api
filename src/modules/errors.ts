@@ -9,6 +9,7 @@ export enum HttpStatusCode {
   CONFLICT = 409,
   UNAUTHORIZED = 401,
   UNPROCESSABLE_ENTITY = 422,
+  UNAVAILABLE = 503,
 }
 
 type ErrorOptions = {
@@ -63,6 +64,17 @@ export class UnauthorizedError extends BaseError {
       "Unauthorized",
       HttpStatusCode.UNAUTHORIZED,
       "Incorrect email password combination",
+      true
+    );
+  }
+}
+
+export class TokenRevocationError extends BaseError {
+  constructor() {
+    super(
+      "TokenExpired",
+      HttpStatusCode.UNAVAILABLE,
+      "The token is no longer valid",
       true
     );
   }

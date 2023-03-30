@@ -7,9 +7,10 @@ const baseConfig = {
     isProd: env === 'production' || env === 'prod',
     port: process.env.PORT || 3001,
     secrets: {
-        jwt: process.env.JWT_SECRET,
-        // jwtExp: '100d',
-        dbUrl: process.env.DB_URL
+        jwtRefresh: process.env.JWT_REFRESH_SECRET,
+        jwtAccess: process.env.JWT_ACCESS_SECRET,
+        refreshExp: process.env.JWT_REFRESH_EXPIRES_IN,
+        accessExp: process.env.JWT_ACCESS_EXPIRES_IN,
     }
 };
 

@@ -11,14 +11,14 @@ function setCookie(res, token) {
   const cookie = serialize("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV !== "development",
-    sameSite: "lax",
-    maxAge: config.JWT_COOKIE_EXPIRES_IN,
+    sameSite: "strict",
+    maxAge: config.secrets.refreshExp,
     path: "/",
-  });  
+  });
   res.setHeader("Set-Cookie", cookie);
 }
 
- function verifyToken(token) {
+function verifyAccessToken(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
       if (err) {
@@ -31,45 +31,76 @@ function setCookie(res, token) {
 }
 
 export async function protectRoute(req, res, next) {
-  const token = req.cookies.token;
+  const bearer = req.headers.authorization;
+  if (!bearer) return next(new errors.UnauthorizedError());
+  const [, token] = bearer.split(" ");
   if (!token) return next(new errors.UnauthorizedError());
-  const [err, user] = await tryToCatch(verifyToken, token);
-  //TOD0: add refresh token 
-  if (err) return next(new errors.UnauthorizedError());
-
+  const [err, user] = await tryToCatch(verifyAccessToken, token);
+  if (err && err.name === "TokenExpiredError") {
+    return next(new errors.TokenRevocationError());
+  } else if (err && err.name === "JsonWebTokenError") {
+    return next(new errors.UnauthorizedError());
+  }
   req.user = user;
   next();
 }
 
-export async function login  (req, res, next) {  
+export async function login(req, res, next) {
   const magic = new Magic(process.env.MAGIC_SECRET_KEY);
   const didToken = req.headers.authorization.substr(7);
   await magic.token.validate(didToken);
   const metadata = await magic.users.getMetadataByToken(didToken);
-  
-  // // TODO: add user to db if not already there
-  // const [err, user] = await tryToCatch(prisma.user.findUnique, {
-  //   where: { userEmail: metadata.email },
-  // });
-  // if (!user) {
-  //   const [err, user] = await tryToCatch(prisma.user.create, {
-  //     data: {
-  //       userEmail: metadata.email,
-  //       id: metadata.issuer,
-  //     },
-  //   });
-  const token = jwt.sign(
-    { id: metadata.issuer, email: metadata.email },
-    process.env.JWT_SECRET,
-    { expiresIn: config.JWT_EXPIRES_IN }
-  );
-  setCookie(res, token);
-  res.status(200).json({ done: true });
-};
+  const [err, user] = await tryToCatch(prisma.user.findUnique, {
+    where: { userEmail: metadata.email },
+  });
+  if (!user) {
+    const [err, user] = await tryToCatch(prisma.user.create, {
+      data: {
+        userEmail: metadata.email,
+        id: metadata.issuer,
+      },
+    });
+    const refreshToken = jwt.sign(
+      { id: metadata.issuer },
+      config.secrets.jwtRefresh,
+      { expiresIn: config.secrets.refreshExp }
+    );
 
+    const accessToken = jwt.sign(
+      { id: metadata.issuer },
+      config.secrets.jwtAccess,
+      { expiresIn: config.secrets.accessExp }
+    );
+    setCookie(res, refreshToken);
+    res.status(200).json({
+      token: accessToken,
+      done: true,
+    });
+  }
+}
 
-
-
+export function refreshTokens(req, res, next) {
+  const refreshToken = req.cookies.token;
+  if (!refreshToken) return next(new errors.UnauthorizedError());
+  jwt.verify(refreshToken, config.secrets.jwtRefresh, (err, user) => {
+    if (err) return next(new errors.UnauthorizedError());
+    const accessToken = jwt.sign(
+      { id: user.id },
+      config.secrets.jwtAccess,
+      { expiresIn: config.secrets.accessExp }
+    );
+    const newRefreshToken = jwt.sign(
+      { id: user.id },
+      config.secrets.jwtRefresh,
+      { expiresIn: config.secrets.refreshExp }
+    );
+    setCookie(res, newRefreshToken);
+    res.status(200).json({
+      token: accessToken,
+      done: true,
+    });
+  });
+}
 
 // export const comparePassword = (password, hash) =>
 //   bcrypt.compare(password, hash);
